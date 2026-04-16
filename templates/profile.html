@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - {{ user['firstname'] }} {{ user['middlename'] }} {{ user['lastname'] }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--electric-purple);
+            border-radius: 50%;
+            animation: floatParticle 8s infinite linear;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .profile-container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-sidebar {
+            flex: 1;
+            text-align: center;
+            padding-right: 30px;
+            border-right: 1px solid rgba(147, 51, 234, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-section {
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 20px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); }
+            50% { transform: rotate(15deg) scale(1.05); }
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: var(--moonlight);
+            margin-top: 5px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .profile-picture-section {
+            width: 100%;
+        }
+
+        .profile-picture {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid var(--electric-purple);
+            object-fit: cover;
+            margin-bottom: 15px;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .remove-button {
+            display: block;
+            margin: 10px auto 0;
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            color: var(--starlight);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .file-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .profile-content {
+            flex: 2;
+        }
+
+        h2 {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h3 {
+            color: var(--moonlight);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-label {
+            color: var(--nebula);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .info-value {
+            color: var(--starlight);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .nav-btn {
+            color: var(--starlight);
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border: 1px solid rgba(147, 51, 234, 0.4);
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 8px 24px rgba(138, 43, 226, 0.4);
+            width: 100%;
+            border: none;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(138, 43, 226, 0.5);
+        }
+
+        .nav-btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .nav-btn:disabled {
+            background: rgba(147, 51, 234, 0.3);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .home-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .home-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .no-image-message {
+            color: var(--nebula);
+            margin-bottom: 15px;
+            font-size: 14px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+                max-width: 480px;
+            }
+            
+            .profile-sidebar {
+                border-right: none;
+                border-bottom: 1px solid rgba(147, 51, 234, 0.2);
+                padding-right: 0;
+                padding-bottom: 30px;
+                margin-bottom: 20px;
+            }
+            
+            .logo-text {
+                font-size: 2rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .logo-text {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="profile-container">
+        <div class="profile-sidebar">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div class="logo-text">WAVIX</div>
+                <div class="tagline">THE FUTURE OF TECHNOLOGY</div>
+            </div>
+
+            <div class="profile-picture-section">
+                <h3>Profile Picture</h3>
+                <div class="profile-picture">
+                    {% if user['profile_image'] %}
+                        <img src="{{ user['profile_image'] }}" alt="Profile Picture">
+                        <!-- Remove Profile Image Button -->
+                        <form method="POST" action="{{ url_for('profile') }}" style="display:block;" onsubmit="return confirm('Are you sure you want to remove your profile picture?');">
+                            <button type="submit" name="remove_image" value="1" class="nav-btn secondary-button remove-button">
+                                <i class="fas fa-trash"></i>
+                                Remove Image
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="no-image-message">
+                            <i class="fas fa-user-circle"></i> No profile picture uploaded yet.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Upload New Image -->
+                <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data" class="upload-form">
+                    <input type="file" name="profile_image" accept="image/*" required class="file-input">
+                    <button type="submit" name="upload_image" value="1" class="nav-btn">
+                        <i class="fas fa-upload"></i>
+                        Upload Image
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <h2>Profile - {{ user['firstname'] }} {{ user['middlename'] }} {{ user['lastname'] }}</h2>
+
+            <!-- User Information -->
+            <div class="section">
+                <h3>Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ user['email'] }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Phone Number:</span>
+                        <span class="info-value">{{ user['phone_number'] or 'N/A' }}</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Category:</span>
+                        <span class="info-value">
+                            {{ user['role'] }}{% if user['is_seller'] %} / Seller{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">
+                            {{ user.region_name }}, {{ user.province_name }},
+                            {{ user.municipality_name }}, {{ user.barangay_name }},
+                            {{ user.street_name }} {{ user.house_number }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('index') }}" class="home-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                particle.style.opacity = Math.random() * 0.6 + 0.2;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>

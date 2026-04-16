@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rider Applications</title>
+</head>
+<body>
+    <h2>Rider Applications</h2>
+
+    {% if applications %}
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>License</th>
+                <th>Station</th>
+                <th>Status</th>
+                <th>Submitted At</th>
+                <th>Actions</th>
+            </tr>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.username }}</td>
+                <td>{{ app.email }}</td>
+                <td>
+                    {% if app.license_file %}
+                        <a href="{{ url_for('static', filename='licenses/' ~ app.license_file) }}" target="_blank">View</a>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>{{ app.station }}</td>
+                <td>{{ app.status }}</td>
+                <td>{{ app.created_at }}</td>
+                <td>
+                    {% if app.status == 'Pending' %}
+                        <a href="{{ url_for('update_rider_application', app_id=app.id, action='approve') }}">Approve</a> |
+                        <a href="{{ url_for('update_rider_application', app_id=app.id, action='decline') }}">Decline</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No applications yet.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a>
+</body>
+</html>

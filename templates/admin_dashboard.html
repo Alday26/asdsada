@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .admin-title {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .admin-subtitle {
+            color: var(--moonlight);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .action-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 20px;
+            padding: 30px 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-card:hover {
+            background: rgba(138, 43, 226, 0.15);
+            border-color: rgba(138, 43, 226, 0.5);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(138, 43, 226, 0.3);
+        }
+
+        .action-card:hover::before {
+            left: 100%;
+        }
+
+        .action-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(138, 43, 226, 0.2);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            margin: 0 auto 20px;
+            font-size: 28px;
+            color: var(--electric-purple);
+        }
+
+        .action-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--moonlight);
+            margin-bottom: 10px;
+        }
+
+        .action-description {
+            font-size: 0.9rem;
+            color: var(--nebula);
+            line-height: 1.5;
+        }
+
+        .section-title {
+            color: var(--moonlight);
+            font-size: 24px;
+            font-weight: 600;
+            margin: 50px 0 25px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--electric-purple);
+        }
+
+        .applications-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .applications-table th {
+            background: rgba(138, 43, 226, 0.2);
+            color: var(--moonlight);
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .applications-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            color: var(--starlight);
+        }
+
+        .applications-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .applications-table tr:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .status {
+            font-weight: 600;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .approve-btn, .reject-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .approve-btn {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .approve-btn:hover {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: rgba(34, 197, 94, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+        }
+
+        .reject-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .reject-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            color: #fca5a5;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 30px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--nebula);
+            font-size: 16px;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-message i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--electric-purple);
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 25px 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(138, 43, 226, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--electric-purple);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--nebula);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-card {
+                padding: 25px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .applications-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .admin-title {
+                font-size: 28px;
+            }
+            
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-card {
+                padding: 20px;
+            }
+
+            .admin-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="dashboard-card">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="admin-title">Admin Dashboard</h1>
+                    <p class="admin-subtitle">Manage your marketplace with precision</p>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, msg in messages %}
+                <div class="flash-message {% if category=='error' %}flash-error{% else %}flash-success{% endif %}">
+                    <i class="fas {% if category=='error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                    {{ msg }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Statistics Overview -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-value">{{ applications|length if applications else 0 }}</div>
+                    <div class="stat-label">Total Applications</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {{ applications|selectattr("status", "equalto", "pending")|list|length if applications else 0 }}
+                    </div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {{ applications|selectattr("status", "equalto", "approved")|list|length if applications else 0 }}
+                    </div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {{ applications|selectattr("status", "equalto", "rejected")|list|length if applications else 0 }}
+                    </div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="{{ url_for('admin_sales') }}" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="action-title">Sales Analytics</div>
+                    <div class="action-description">View platform sales with 5% commission tracking and revenue reports</div>
+                </a>
+                
+                <a href="{{ url_for('admin_purchases') }}" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="action-title">Purchase Logs</div>
+                    <div class="action-description">Monitor all transaction logs and purchase history across the platform</div>
+                </a>
+                
+                <a href="{{ url_for('user_approvals') }}" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="action-title">User Management</div>
+                    <div class="action-description">Manage user approval</div>
+                </a>
+            </div>
+
+            <!-- Seller Applications Section -->
+            <h2 class="section-title">
+                <i class="fas fa-users"></i>
+                Seller Applications
+            </h2>
+
+            {% if applications %}
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Store</th>
+                            <th>Genre</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td><strong>#{{ app.id }}</strong></td>
+                            <td>{{ app.username }}</td>
+                            <td>{{ app.email }}</td>
+                            <td>{{ app.store_name }}</td>
+                            <td>{{ app.product_genre }}</td>
+                            <td>
+                                <span class="status status-{{ app.status|lower }}">
+                                    {{ app.status|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if app.status == "pending" %}
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('approve_seller', app_id=app.id) }}" class="approve-btn">
+                                            <i class="fas fa-check"></i>
+                                            Approve
+                                        </a>
+                                        <a href="{{ url_for('reject_seller', app_id=app.id) }}" class="reject-btn">
+                                            <i class="fas fa-times"></i>
+                                            Reject
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <span style="color: var(--nebula); font-size: 12px;">
+                                        {{ app.status|capitalize }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-message">
+                    <i class="fas fa-inbox"></i>
+                    <p>No pending seller applications at the moment.</p>
+                </div>
+            {% endif %}
+
+            <!-- Logout Button -->
+            <div class="actions-container">
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add confirmation for approve/reject actions
+        document.addEventListener('DOMContentLoaded', function() {
+            const actionLinks = document.querySelectorAll('.approve-btn, .reject-btn');
+            
+            actionLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const action = this.classList.contains('approve-btn') ? 'approve' : 'reject';
+                    const userName = this.closest('tr').querySelector('td:nth-child(2)').textContent;
+                    const storeName = this.closest('tr').querySelector('td:nth-child(4)').textContent;
+                    
+                    if (!confirm(`Are you sure you want to ${action} the seller application for ${userName} (${storeName})?`)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            // Add animation to action cards
+            const actionCards = document.querySelectorAll('.action-card');
+            actionCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // Auto-refresh page every 30 seconds to check for new applications
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                window.location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

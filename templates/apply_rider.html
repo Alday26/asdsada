@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply to Become a Rider | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+            --success: #4ade80;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .application-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .application-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-title {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--moonlight);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* User Info Section */
+        .user-info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--glow-purple);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--nebula);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--starlight);
+        }
+
+        /* Form Styles */
+        .application-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--moonlight);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .required::after {
+            content: '*';
+            color: var(--electric-purple);
+            margin-left: 4px;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: var(--starlight);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:focus {
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .file-input::file-selector-button {
+            background: rgba(168, 85, 247, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: var(--starlight);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input::file-selector-button:hover {
+            background: rgba(168, 85, 247, 0.5);
+        }
+
+        .select-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: var(--starlight);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .select-input:focus {
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .select-input option {
+            background: var(--cosmic-purple);
+            color: var(--starlight);
+        }
+
+        .form-help {
+            font-size: 0.85rem;
+            color: var(--nebula);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px 25px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            color: var(--starlight);
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .application-card {
+                padding: 25px;
+            }
+            
+            .application-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .application-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="application-card">
+            <!-- Header -->
+            <div class="application-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-motorcycle"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="page-title">Rider Application</h1>
+                    <p class="page-subtitle">Join our delivery team</p>
+                </div>
+            </div>
+
+            <!-- User Information -->
+            <div class="user-info">
+                <div class="info-title">
+                    <i class="fas fa-user"></i>
+                    Applicant Information
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Name</div>
+                        <div class="info-value">{{ user['username'] }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ user['email'] }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">{{ user['phone'] }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Form -->
+            <form method="POST" action="{{ url_for('apply_rider') }}" enctype="multipart/form-data" class="application-form">
+                <div class="form-group">
+                    <label class="form-label required">
+                        <i class="fas fa-id-card"></i>
+                        Driver License
+                    </label>
+                    <input type="file" name="license_file" accept="image/*,application/pdf" class="file-input" required>
+                    <div class="form-help">Accepted formats: PNG, JPG, PDF (Max 5MB)</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Preferred Station
+                    </label>
+                    <select name="station" class="select-input" required>
+                        <option value="">-- Select Station --</option>
+                        <option value="Sta Cruz">Sta Cruz</option>
+                        <option value="Pagsanjan">Pagsanjan</option>
+                        <option value="Siniloan">Siniloan</option>
+                        <option value="Lumban">Lumban</option>
+                        <option value="Sambat">Sambat</option>
+                        <option value="Flexible">Flexible</option>
+                    </select>
+                    <div class="form-help">Choose your primary delivery station</div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Application
+                </button>
+            </form>
+
+            <!-- Back Button -->
+            <div class="actions-container">
+                <a href="{{ url_for('profile') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add file input validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('input[type="file"]');
+            
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const fileSize = file.size / 1024 / 1024; // MB
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                    
+                    if (!validTypes.includes(file.type)) {
+                        alert('Please select a valid file type (PNG, JPG, or PDF)');
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    if (fileSize > 5) {
+                        alert('File size must be less than 5MB');
+                        e.target.value = '';
+                        return;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Orders</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .status-pending { color: orange; font-weight: bold; }
+        .status-approved { color: green; font-weight: bold; }
+        .status-declined { color: red; font-weight: bold; }
+        button { padding: 5px 10px; margin: 2px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Admin Orders - Pending Payment</h1>
+
+    {% if orders %}
+        <table>
+            <tr>
+                <th>Order ID</th>
+                <th>Buyer</th>
+                <th>Product</th>
+                <th>Variant</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.buyer_name }}</td>
+                <td>{{ order.product_name }}</td>
+                <td>{{ order.color }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>${{ order.price | round(2) }}</td>
+                <td>${{ (order.price * order.quantity) | round(2) }}</td>
+                <td>{{ order.payment_method or "Pending" }}</td>
+                <td class="status-{{ order.status }}">
+                    {{ order.status | capitalize }}
+                </td>
+                <td>
+                    {% if order.status == "pending" %}
+                        <a href="{{ url_for('admin_approve_order', order_id=order.id) }}">
+                            <button>Approve</button>
+                        </a>
+                        <a href="{{ url_for('admin_decline_order', order_id=order.id) }}">
+                            <button>Decline</button>
+                        </a>
+                    {% else %}
+                        <span>{{ order.status | capitalize }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No pending orders.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>

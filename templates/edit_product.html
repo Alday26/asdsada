@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .edit-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-title {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--moonlight);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Form Styles */
+        .edit-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--moonlight);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .required::after {
+            content: '*';
+            color: var(--electric-purple);
+            margin-left: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: var(--starlight);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: var(--starlight);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .form-textarea:focus {
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .category-display {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: var(--nebula);
+            font-size: 14px;
+            border-style: dashed;
+        }
+
+        /* Variants Section */
+        .variants-section {
+            margin: 40px 0 30px 0;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--starlight);
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .variant {
+            border: 2px dashed rgba(138, 43, 226, 0.3);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .variant:hover {
+            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .variant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .variant-title {
+            font-weight: 600;
+            color: var(--glow-purple);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .variant-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr 2fr;
+            gap: 15px;
+            align-items: start;
+        }
+
+        .variant-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .variant-label {
+            font-size: 0.85rem;
+            color: var(--moonlight);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .variant-input {
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 8px;
+            color: var(--starlight);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .variant-input:focus {
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+        }
+
+        .variant-field:last-child {
+            grid-column: 3;
+        }
+
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-input {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 8px;
+            color: var(--starlight);
+            font-size: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .file-input:focus {
+            border-color: var(--electric-purple);
+        }
+
+        .file-input::file-selector-button {
+            background: rgba(168, 85, 247, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: var(--starlight);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .file-input::file-selector-button:hover {
+            background: rgba(168, 85, 247, 0.5);
+        }
+
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .preview-image:hover {
+            border-color: var(--electric-purple);
+            transform: scale(1.05);
+        }
+
+        .preview-text {
+            font-size: 0.75rem;
+            color: var(--nebula);
+            text-align: center;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            color: var(--starlight);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--starlight);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--error);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .edit-card {
+                padding: 25px;
+            }
+            
+            .edit-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .variant-fields {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .variant-field:last-child {
+                grid-column: 1;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+
+            .actions-container {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .variant-input {
+                font-size: 16px;
+            }
+            
+            .preview-image {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .edit-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+
+            .variant-fields {
+                gap: 10px;
+            }
+            
+            .variant-label {
+                font-size: 0.8rem;
+            }
+            
+            .variant-input {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            
+            .preview-image {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="edit-card">
+            <!-- Header -->
+            <div class="edit-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="page-title">Edit Product</h1>
+                    <p class="page-subtitle">Update your product details and variants</p>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" enctype="multipart/form-data" class="edit-form">
+                <!-- Basic Product Information -->
+                <div class="form-group">
+                    <label class="form-label required">
+                        <i class="fas fa-tag"></i>
+                        Product Name
+                    </label>
+                    <input type="text" name="name" value="{{ product.name }}" class="form-input" placeholder="Enter product name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">
+                        <i class="fas fa-align-left"></i>
+                        Description
+                    </label>
+                    <textarea name="description" class="form-textarea" placeholder="Enter product description" required>{{ product.description }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">
+                        <i class="fas fa-dollar-sign"></i>
+                        Price
+                    </label>
+                    <input type="number" step="0.01" name="price" value="{{ product.price }}" class="form-input" placeholder="0.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-folder"></i>
+                        Category
+                    </label>
+                    <div class="category-display">{{ allowed_category }}</div>
+                    <input type="hidden" name="category" value="{{ allowed_category }}">
+                </div>
+
+                <!-- Variants Section -->
+                <div class="variants-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-palette"></i>
+                            Color Variants
+                        </h3>
+                        <button type="button" class="btn btn-secondary" onclick="addVariant()">
+                            <i class="fas fa-plus"></i>
+                            Add Variant
+                        </button>
+                    </div>
+
+                    <div id="variants">
+                        {% for variant in variants %}
+                        <div class="variant">
+                            <div class="variant-header">
+                                <div class="variant-title">
+                                    <i class="fas fa-cube"></i>
+                                    Variant {{ loop.index }}
+                                </div>
+                                <button type="button" class="btn btn-danger" onclick="removeVariant(this)">
+                                    <i class="fas fa-trash"></i>
+                                    Remove
+                                </button>
+                            </div>
+                            <input type="hidden" name="variant_id[]" value="{{ variant.id }}">
+                            <div class="variant-fields">
+                                <div class="variant-field">
+                                    <label class="variant-label">Color</label>
+                                    <input type="text" name="variant_color[]" value="{{ variant.color }}" class="variant-input" placeholder="e.g., Black, Red" required>
+                                </div>
+                                <div class="variant-field">
+                                    <label class="variant-label">Stock</label>
+                                    <input type="number" name="variant_stock[]" value="{{ variant.stock }}" class="variant-input" placeholder="0" required>
+                                </div>
+                                <div class="variant-field">
+                                    <label class="variant-label">Image</label>
+                                    <div class="file-input-container">
+                                        <input type="file" name="variant_image[]" accept="image/*" class="file-input" onchange="previewImage(event, this)">
+                                        <div class="preview-container">
+                                            <img src="{{ variant.image_url or 'https://via.placeholder.com/100/1a0a2e/a855f7?text=Img' }}" alt="Preview" class="preview-image">
+                                            <div class="preview-text">Preview</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px;">
+                    <i class="fas fa-save"></i>
+                    Update Product
+                </button>
+            </form>
+
+            <!-- Back Button -->
+            <div class="actions-container">
+                <a href="{{ url_for('seller_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let variantCount = {{ variants|length }};
+
+        function addVariant() {
+            const container = document.getElementById("variants");
+            const div = document.createElement("div");
+            div.className = "variant";
+            variantCount++;
+            
+            div.innerHTML = `
+                <div class="variant-header">
+                    <div class="variant-title">
+                        <i class="fas fa-cube"></i>
+                        New Variant
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeVariant(this)">
+                        <i class="fas fa-trash"></i>
+                        Remove
+                    </button>
+                </div>
+                <input type="hidden" name="variant_id[]" value="new">
+                <div class="variant-fields">
+                    <div class="variant-field">
+                        <label class="variant-label">Color</label>
+                        <input type="text" name="variant_color[]" class="variant-input" placeholder="e.g., Black, Red" required>
+                    </div>
+                    <div class="variant-field">
+                        <label class="variant-label">Stock</label>
+                        <input type="number" name="variant_stock[]" class="variant-input" placeholder="0" required>
+                    </div>
+                    <div class="variant-field">
+                        <label class="variant-label">Image</label>
+                        <div class="file-input-container">
+                            <input type="file" name="variant_image[]" accept="image/*" class="file-input" onchange="previewImage(event, this)">
+                            <div class="preview-container">
+                                <img src="https://via.placeholder.com/100/1a0a2e/a855f7?text=Img" alt="Preview" class="preview-image">
+                                <div class="preview-text">Preview</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            
+            // Add animation
+            div.style.opacity = '0';
+            div.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                div.style.transition = 'all 0.3s ease';
+                div.style.opacity = '1';
+                div.style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        function removeVariant(button) {
+            const div = button.closest('.variant');
+            const variantIdInput = div.querySelector('input[name="variant_id[]"]');
+            
+            if (variantIdInput && variantIdInput.value !== "new") {
+                // Mark removed variant explicitly
+                const hiddenDelete = document.createElement("input");
+                hiddenDelete.type = "hidden";
+                hiddenDelete.name = "delete_variant_ids[]";
+                hiddenDelete.value = variantIdInput.value;
+                div.appendChild(hiddenDelete);
+            }
+            
+            // Animate removal
+            div.style.transition = 'all 0.3s ease';
+            div.style.opacity = '0';
+            div.style.transform = 'translateY(-20px)';
+            div.style.height = div.offsetHeight + 'px';
+            
+            setTimeout(() => {
+                div.style.display = "none";
+            }, 300);
+        }
+
+        function previewImage(event, input) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const img = input.parentElement.querySelector('.preview-image');
+                img.src = reader.result;
+                img.style.borderColor = 'var(--electric-purple)';
+            };
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+
+        // Add animation to existing variants
+        document.addEventListener('DOMContentLoaded', function() {
+            const variants = document.querySelectorAll('.variant');
+            variants.forEach((variant, index) => {
+                variant.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

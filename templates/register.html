@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 1000px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.2);
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 15px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); }
+            50% { transform: rotate(15deg) scale(1.05); }
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: var(--moonlight);
+            margin-top: 5px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            color: var(--starlight);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--nebula);
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .flash-messages {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .flash-messages li {
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease-out;
+            backdrop-filter: blur(10px);
+            border: 1px solid;
+        }
+
+        .flash-messages li.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .flash-messages li.success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .register-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .section-title {
+            color: var(--moonlight);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.2);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            color: var(--moonlight);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        /* Email input with OTP button - FIXED */
+        .email-otp-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .email-otp-wrapper input {
+            flex: 1;
+        }
+
+        .otp-btn {
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            color: var(--starlight);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        /* Dropdown styling - FIXED */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        select option {
+            background: var(--cosmic-purple);
+            color: var(--starlight);
+            padding: 10px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            color: var(--starlight);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        select:focus {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+
+        .toggle-password:hover {
+            color: var(--electric-purple);
+        }
+
+        .btn {
+            color: var(--starlight);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border: 1px solid rgba(147, 51, 234, 0.4);
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(138, 43, 226, 0.4);
+            border: none;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(138, 43, 226, 0.5);
+        }
+
+        .btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .btn:disabled {
+            background: rgba(147, 51, 234, 0.3);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .requirements {
+            margin-top: 12px;
+            padding: 16px;
+            background: rgba(147, 51, 234, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(147, 51, 234, 0.2);
+        }
+
+        .requirement {
+            font-size: 13px;
+            color: #ef4444;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .requirement:last-child {
+            margin-bottom: 0;
+        }
+
+        .requirement.valid {
+            color: #22c55e;
+        }
+
+        .requirement-icon {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .strength-meter {
+            margin-top: 12px;
+        }
+
+        .strength-bar {
+            height: 6px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.4s ease;
+            border-radius: 6px;
+        }
+
+        .strength-fill.weak {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .strength-fill.medium {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .strength-fill.strong {
+            background: linear-gradient(90deg, var(--neon-purple), var(--electric-purple));
+        }
+
+        .strength-text {
+            font-size: 12px;
+            color: var(--nebula);
+            text-align: right;
+        }
+
+        .preview-img {
+            display: block;
+            margin: 10px 0;
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 10px;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .home-button {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .home-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 16px;
+            color: var(--nebula);
+            font-size: 14px;
+            grid-column: 1 / -1;
+        }
+
+        .login-link a {
+            color: var(--electric-purple);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--glow-purple);
+            text-decoration: underline;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--electric-purple);
+            border-radius: 50%;
+            animation: floatParticle 8s infinite linear;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .register-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .register-container {
+                padding: 30px 20px;
+            }
+            
+            .logo-text {
+                font-size: 2rem;
+            }
+            
+            .email-otp-wrapper {
+                flex-direction: column;
+            }
+            
+            .otp-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 25px 15px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="register-container">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-microchip"></i>
+            </div>
+            <div class="logo-text">WAVIX</div>
+            <div class="tagline">THE FUTURE OF TECHNOLOGY</div>
+        </div>
+
+        <h2>Create Your Account</h2>
+        <p class="subtitle">Join the Wavix community today</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, msg in messages %}
+                    <li class="{{ 'error' if category=='error' else 'success' }}">
+                        {{ msg }}
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="registerForm" enctype="multipart/form-data" class="register-form">
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">Personal Information</h3>
+                
+                <!-- Profile Upload -->
+                <div class="form-group">
+                    <label>Upload Profile Picture:</label>
+                    <input type="file" name="profile_picture" accept="image/*" id="profile_picture">
+                    <img id="profile_preview" class="preview-img" style="display:none;">
+                </div>
+
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label>Lastname:</label>
+                    <input type="text" name="lastname" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Firstname:</label>
+                    <input type="text" name="firstname" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Middlename:</label>
+                    <input type="text" name="middlename" required>
+                </div>
+
+                <!-- Email & OTP - FIXED LAYOUT -->
+                <div class="form-group">
+                    <label>Email:</label>
+                    <div class="email-otp-wrapper">
+                        <input type="email" name="email" id="email" placeholder="Enter your email" required>
+                        <button type="button" id="sendCodeBtn" class="btn btn-secondary otp-btn">
+                            Send OTP
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Enter OTP:</label>
+                    <input type="text" name="otp" id="otp" placeholder="Enter OTP code" required>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="form-group">
+                    <label>Phone Number:</label>
+                    <input type="tel" name="phone_number" pattern="[0-9]{10,15}" placeholder="09XXXXXXXXX">
+                </div>
+            </div>
+
+            <!-- Account Details Section -->
+            <div class="form-section">
+                <h3 class="section-title">Account Details</h3>
+                
+                <!-- Category -->
+                <div class="form-group">
+                    <label>Category:</label>
+                    <select name="category" id="categorySelect" required>
+                        <option value="">Select Category</option>
+                        <option value="user">User</option>
+                        <option value="seller">Seller</option>
+                        <option value="rider">Rider</option>
+                    </select>
+                </div>
+
+                <!-- Seller Store Name -->
+                <div id="store_name_div" style="display:none;">
+                    <div class="form-group">
+                        <label>Store Name:</label>
+                        <input type="text" name="store_name" id="store_name" placeholder="Enter store name">
+                    </div>
+                </div>
+
+                <!-- Seller Product Category -->
+                <div id="seller_category_div" style="display:none;">
+                    <div class="form-group">
+                        <label for="seller_category">Select Product Category:</label>
+                        <select name="seller_category" id="seller_category">
+                            <option value="">-- Select Category --</option>
+                            <option value="Electronics and Gadgets">Electronics and Gadgets</option>
+                            <option value="Mobile Phones & Accessories">Mobile Phones & Accessories</option>
+                            <option value="Laptops, Desktops & Monitors">Laptops, Desktops & Monitors</option>
+                            <option value="Audio & Video Equipment">Audio & Video Equipment</option>
+                            <option value="Smart Home Devices">Smart Home Devices</option>
+                            <option value="Cameras & Photography">Cameras & Photography</option>
+                            <option value="Wearable Technology">Wearable Technology</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Document uploads -->
+                <div id="documentUploads"></div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label>Password:</label>
+                    <div class="input-wrapper">
+                        <input type="password" name="password" id="password" placeholder="Create a strong password" required>
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Requirements -->
+                    <div class="requirements">
+                        <div class="requirement" id="lengthReq">
+                            <span class="requirement-icon">❌</span>
+                            <span>Minimum 7 characters</span>
+                        </div>
+                        <div class="requirement" id="numberReq">
+                            <span class="requirement-icon">❌</span>
+                            <span>At least 1 number</span>
+                        </div>
+                        <div class="requirement" id="uppercaseReq">
+                            <span class="requirement-icon">❌</span>
+                            <span>At least 1 uppercase letter</span>
+                        </div>
+                    </div>
+
+                    <!-- Strength Meter -->
+                    <div class="strength-meter">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText">Password strength: Weak</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Section -->
+            <div class="form-section" style="grid-column: 1 / -1;">
+                <h3 class="section-title">Location Information</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Region:</label>
+                        <select id="region" name="region" required>
+                            <option value="">Select Region</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Province:</label>
+                        <select id="province" name="province" required>
+                            <option value="">Select Province</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Municipality/City:</label>
+                        <select id="municipality" name="municipality" required>
+                            <option value="">Select Municipality</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Barangay:</label>
+                        <select id="barangay" name="barangay" required>
+                            <option value="">Select Barangay</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Street Name:</label>
+                        <input type="text" name="street_name" placeholder="Enter street name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>House Number:</label>
+                        <input type="text" name="house_number" placeholder="Enter house number" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="action-buttons">
+                <button type="submit" id="submitBtn" class="btn" disabled>
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+                
+                <a href="{{ url_for('index') }}" class="home-button">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+
+            <div class="login-link">
+                Already have an account? <a href="{{ url_for('login') }}">Sign In</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Profile preview
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else preview.style.display = "none";
+        }
+        document.getElementById("profile_picture").addEventListener("change", e => previewImage(e.target, "profile_preview"));
+
+        // Password validation
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        const lengthReq = document.getElementById("lengthReq");
+        const numberReq = document.getElementById("numberReq");
+        const uppercaseReq = document.getElementById("uppercaseReq");
+        const submitBtn = document.getElementById("submitBtn");
+        const strengthFill = document.getElementById("strengthFill");
+        const strengthText = document.getElementById("strengthText");
+
+        togglePassword.addEventListener("click", function() {
+            const type = passwordInput.type === "password" ? "text" : "password";
+            passwordInput.type = type;
+            togglePassword.innerHTML = type === "password" ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+
+        function validatePassword() {
+            const val = passwordInput.value;
+            let validCount = 0;
+
+            if(val.length >= 7) {
+                lengthReq.classList.add("valid");
+                lengthReq.querySelector(".requirement-icon").textContent = "✅";
+                validCount++;
+            } else {
+                lengthReq.classList.remove("valid");
+                lengthReq.querySelector(".requirement-icon").textContent = "❌";
+            }
+
+            if(/\d/.test(val)) {
+                numberReq.classList.add("valid");
+                numberReq.querySelector(".requirement-icon").textContent = "✅";
+                validCount++;
+            } else {
+                numberReq.classList.remove("valid");
+                numberReq.querySelector(".requirement-icon").textContent = "❌";
+            }
+
+            if(/[A-Z]/.test(val)) {
+                uppercaseReq.classList.add("valid");
+                uppercaseReq.querySelector(".requirement-icon").textContent = "✅";
+                validCount++;
+            } else {
+                uppercaseReq.classList.remove("valid");
+                uppercaseReq.querySelector(".requirement-icon").textContent = "❌";
+            }
+
+            submitBtn.disabled = validCount !== 3;
+
+            let strength = 0;
+            if(val.length >= 7) strength++;
+            if(/\d/.test(val)) strength++;
+            if(/[A-Z]/.test(val)) strength++;
+            if(/[\W_]/.test(val)) strength++;
+
+            let width = (strength / 4) * 100;
+            strengthFill.style.width = width + "%";
+
+            strengthFill.classList.remove("weak", "medium", "strong");
+            if(strength <= 1) {
+                strengthFill.classList.add("weak");
+                strengthText.textContent = "Password strength: Weak";
+            } else if(strength === 2 || strength === 3) {
+                strengthFill.classList.add("medium");
+                strengthText.textContent = "Password strength: Medium";
+            } else {
+                strengthFill.classList.add("strong");
+                strengthText.textContent = "Password strength: Strong";
+            }
+        }
+
+        passwordInput.addEventListener("input", validatePassword);
+
+        // Send OTP with better feedback
+        document.getElementById("sendCodeBtn").addEventListener("click", async () => {
+            const emailInput = document.getElementById("email");
+            const email = emailInput.value.trim();
+            if (!email) {
+                alert("Enter email first!");
+                emailInput.focus();
+                return;
+            }
+
+            const btn = document.getElementById("sendCodeBtn");
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = "Sending...";
+
+            try {
+                const res = await axios.post("/send_otp", { email });
+                alert(res.data?.message || "OTP request sent.");
+            } catch (err) {
+                const msg = err.response?.data?.message || "Failed to send OTP";
+                alert(msg);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+
+        // Document uploads & seller category display
+        const categorySelect = document.getElementById("categorySelect");
+        const documentUploadsDiv = document.getElementById("documentUploads");
+        const sellerDiv = document.getElementById("seller_category_div");
+
+        function updateDocumentUploads() {
+            const category = categorySelect.value;
+            
+            // Show/hide store name input
+            const storeDiv = document.getElementById("store_name_div");
+            const storeInput = document.getElementById("store_name");
+            if(category === "seller") {
+                storeDiv.style.display = "block";
+                storeInput.setAttribute("required", "required");
+            } else {
+                storeDiv.style.display = "none";
+                storeInput.removeAttribute("required");
+            }
+
+            // Document uploads
+            documentUploadsDiv.innerHTML = '';
+            if(category==="user"){ 
+                addFile("Upload Valid ID:","valid_id","valid_id_preview"); 
+            } else if(category==="seller"){ 
+                addFile("Upload Valid ID:","valid_id","valid_id_preview"); 
+                addFile("Upload Business Permit:","business_permit","business_permit_preview");
+                sellerDiv.style.display="block";
+            } else { 
+                sellerDiv.style.display="none"; 
+            }
+
+            if(category==="rider"){
+                addFile("Upload Driver License:","driver_license","driver_license_preview");
+                addFile("Upload Motor Registration (plate visible):","motor_registration","motor_registration_preview");
+                addFile("Upload OCR Image:","ocr_image","ocr_image_preview");
+            }
+        }
+
+        function addFile(label,name,previewId){
+            const wrapper=document.createElement("div");
+            wrapper.className = "form-group";
+            wrapper.innerHTML=`
+                <label>${label}</label>
+                <input type="file" name="${name}" accept="image/*" id="${name}" required>
+                <img id="${previewId}" class="preview-img" style="display:none;">
+            `;
+            wrapper.querySelector("input").addEventListener("change", e=>previewImage(e.target,previewId));
+            documentUploadsDiv.appendChild(wrapper);
+        }
+
+        categorySelect.addEventListener("change", updateDocumentUploads);
+
+        // Location dropdowns
+        const regionSelect = document.getElementById('region');
+        const provinceSelect = document.getElementById('province');
+        const municipalitySelect = document.getElementById('municipality');
+        const barangaySelect = document.getElementById('barangay');
+
+        axios.get('https://psgc.gitlab.io/api/regions/').then(res => {
+            res.data.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.code;
+                option.textContent = r.name;
+                regionSelect.appendChild(option);
+            });
+        });
+
+        regionSelect.addEventListener('change', () => {
+            provinceSelect.innerHTML = '<option value="">Select Province</option>';
+            municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+            axios.get(`https://psgc.gitlab.io/api/regions/${regionSelect.value}/provinces/`).then(res => {
+                res.data.forEach(p => { 
+                    const o = document.createElement('option'); 
+                    o.value = p.code; 
+                    o.textContent = p.name; 
+                    provinceSelect.appendChild(o); 
+                });
+            });
+        });
+
+        provinceSelect.addEventListener('change', () => {
+            municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+            axios.get(`https://psgc.gitlab.io/api/provinces/${provinceSelect.value}/municipalities/`).then(res => {
+                res.data.forEach(m => { 
+                    const o = document.createElement('option'); 
+                    o.value = m.code; 
+                    o.textContent = m.name; 
+                    municipalitySelect.appendChild(o); 
+                });
+            });
+        });
+
+        municipalitySelect.addEventListener('change', () => {
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+            axios.get(`https://psgc.gitlab.io/api/municipalities/${municipalitySelect.value}/barangays/`).then(res => {
+                res.data.forEach(b => { 
+                    const o = document.createElement('option'); 
+                    o.value = b.name; 
+                    o.textContent = b.name; 
+                    barangaySelect.appendChild(o); 
+                });
+            });
+        });
+
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                particle.style.opacity = Math.random() * 0.6 + 0.2;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>

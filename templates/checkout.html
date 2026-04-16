@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+            --success: #4ade80;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .checkout-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checkout-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-title {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--moonlight);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Shipping Info */
+        .shipping-info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--starlight);
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--nebula);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--starlight);
+        }
+
+        /* Order Review */
+        .order-review {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .order-table th {
+            background: rgba(138, 43, 226, 0.2);
+            color: var(--moonlight);
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .order-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            color: var(--starlight);
+            vertical-align: middle;
+        }
+
+        .order-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .order-table tr:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .product-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            border: 2px solid rgba(147, 51, 234, 0.3);
+            object-fit: cover;
+        }
+
+        .product-name {
+            color: var(--starlight);
+            font-weight: 500;
+        }
+
+        .variant-info {
+            color: var(--nebula);
+            font-size: 0.9rem;
+        }
+
+        .price-info {
+            color: var(--electric-purple);
+            font-weight: 700;
+        }
+
+        /* Checkout Total */
+        .checkout-total {
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--electric-purple);
+            margin-bottom: 25px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        /* Payment Method */
+        .payment-method {
+            margin-bottom: 30px;
+        }
+
+        .payment-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--moonlight);
+        }
+
+        .payment-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: var(--starlight);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .payment-select:focus {
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .payment-select option {
+            background: var(--cosmic-purple);
+            color: var(--starlight);
+        }
+
+        /* Map Section */
+        .map-section {
+            margin-bottom: 30px;
+        }
+
+        .map-instructions {
+            color: var(--moonlight);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .address-display {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            color: var(--moonlight);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .address-display strong {
+            color: var(--starlight);
+        }
+
+        /* Confirm Button */
+        .confirm-btn {
+            width: 100%;
+            padding: 18px 25px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            color: var(--starlight);
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--nebula);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 25px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 15px;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .checkout-card {
+                padding: 25px;
+            }
+            
+            .checkout-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .checkout-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="checkout-card">
+            <!-- Header -->
+            <div class="checkout-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="page-title">Checkout</h1>
+                    <p class="page-subtitle">Complete your purchase</p>
+                </div>
+            </div>
+
+            {% if items %}
+            <form id="checkout-form" action="{{ url_for('complete_payment') }}" method="POST">
+            <div class="checkout-container">
+                <!-- Left Column: Order Details -->
+                <div>
+                    <!-- Shipping Information -->
+                    <div class="shipping-info">
+                        <h2 class="section-title">Shipping Information</h2>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ user_info.email }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Phone</div>
+                                <div class="info-value">{{ user_info.phone }}</div>
+                            </div>
+                            <div class="info-item" style="grid-column: span 2;">
+                                <div class="info-label">Address</div>
+                                <div class="info-value">{{ user_info.address }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Review -->
+                    <div class="order-review">
+                        <h2 class="section-title">Order Review</h2>
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Variant</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set ns = namespace(total=0) %}
+                                {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <img src="{{ item.image_url or 'https://via.placeholder.com/70/1a0a2e/a855f7?text=Product' }}" 
+                                                 alt="{{ item.product_name }}" 
+                                                 class="product-image">
+                                            <div class="product-name">{{ item.product_name }}</div>
+                                        </div>
+                                        <input type="hidden" name="quantities" value="{{ item.quantity }}">
+                                        <input type="hidden" name="cart_ids" value="{{ item.cart_id }}">
+                                    </td>
+                                    <td class="variant-info">{{ item.color or 'Default' }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="price-info">${{ (item.price * item.quantity)|round(2) }}</td>
+                                </tr>
+                                {% set ns.total = ns.total + (item.price * item.quantity) %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="checkout-total">Total: ${{ ns.total|round(2) }}</div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Payment & Location -->
+                <div>
+                    <!-- Payment Method -->
+                    <div class="payment-method">
+                        <label for="payment_method" class="payment-label">Payment Method</label>
+                        <select name="payment_method" id="payment_method" class="payment-select" required>
+                            <option value="Cash on Delivery">Cash on Delivery</option>
+                        </select>
+                    </div>
+
+                    <!-- Map Section -->
+                    <div class="map-section">
+                        <h2 class="section-title">📍 Delivery Location</h2>
+                        <p class="map-instructions">Drag the marker to your exact delivery location. Your pinned address will appear below.</p>
+
+                        <div id="map"></div>
+                        <input type="hidden" id="latitude" name="latitude" required>
+                        <input type="hidden" id="longitude" name="longitude" required>
+
+                        <div id="address-display" class="address-display">
+                            <em>No location selected yet.</em>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="confirm-btn">
+                        <i class="fas fa-check-circle"></i>
+                        Confirm Order
+                    </button>
+                </div>
+            </div>
+            </form>
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <i class="fas fa-shopping-cart"></i>
+                <p>No items in your cart</p>
+                <a href="{{ url_for('cart') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Cart
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([14.5995, 120.9842], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Custom icon for marker
+        const customIcon = L.divIcon({
+            html: '<i class="fas fa-map-marker-alt" style="color: #a855f7; font-size: 30px; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);"></i>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            className: 'custom-marker'
+        });
+
+        let marker = L.marker([14.5995, 120.9842], { 
+            draggable: true,
+            icon: customIcon
+        }).addTo(map);
+
+        // Update form fields and show address
+        function updateLocation(lat, lng) {
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('address-display').innerHTML =
+                        `<strong>Pinned Address:</strong><br>${data.display_name || 'Address not found.'}`;
+                })
+                .catch(() => {
+                    document.getElementById('address-display').innerHTML =
+                        '<em>Could not fetch address. Please check your connection.</em>';
+                });
+        }
+
+        // Detect location from browser
+        map.locate({ setView: true, maxZoom: 16 });
+        map.on('locationfound', function(e) {
+            marker.setLatLng(e.latlng);
+            updateLocation(e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6));
+        });
+
+        // Update when user drags marker
+        marker.on('dragend', function(e) {
+            const { lat, lng } = marker.getLatLng();
+            updateLocation(lat.toFixed(6), lng.toFixed(6));
+        });
+
+        // Prevent submitting without location
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            const lat = document.getElementById('latitude').value;
+            const lon = document.getElementById('longitude').value;
+            if (!lat || !lon) {
+                alert("⚠️ Please pin your delivery location before confirming your order.");
+                e.preventDefault();
+            }
+        });
+
+        // Add animation to table rows
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableRows = document.querySelectorAll('.order-table tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.animationDelay = `${index * 0.05}s`;
+            });
+        });
+    </script>
+</body>
+</html>

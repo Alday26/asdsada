@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Orders | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-title {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--moonlight);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .tabs-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 160px;
+            padding: 14px 16px;
+            background: transparent;
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            color: var(--nebula);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .tab-button:hover {
+            background: rgba(138, 43, 226, 0.1);
+            border-color: rgba(138, 43, 226, 0.5);
+            color: var(--moonlight);
+        }
+
+        .tab-button.active {
+            background: rgba(138, 43, 226, 0.2);
+            border-color: var(--electric-purple);
+            color: var(--starlight);
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .orders-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .orders-section.active {
+            display: block;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .orders-table th {
+            background: rgba(138, 43, 226, 0.2);
+            color: var(--moonlight);
+            padding: 18px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .orders-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            color: var(--starlight);
+            vertical-align: middle;
+        }
+
+        .orders-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .orders-table tr:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            border: 2px solid rgba(147, 51, 234, 0.3);
+            object-fit: cover;
+        }
+
+        .buyer-name {
+            color: var(--glow-purple);
+            font-weight: 600;
+        }
+
+        .product-name {
+            color: var(--moonlight);
+            font-weight: 500;
+        }
+
+        .variant-info {
+            color: var(--nebula);
+            font-size: 0.9rem;
+        }
+
+        .price-info {
+            color: var(--electric-purple);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+        }
+
+        .btn-acknowledge {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-acknowledge:hover {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: rgba(34, 197, 94, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+        }
+
+        .btn-decline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-decline:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-deliver {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-deliver:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-redeliver {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-redeliver:hover {
+            background: rgba(245, 158, 11, 0.3);
+            border-color: rgba(245, 158, 11, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+
+        .status-indicator {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-ready {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-out {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--electric-purple);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .status-returned {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-delivered {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--nebula);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 30px;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-card {
+                padding: 25px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .tabs-container {
+                flex-direction: column;
+            }
+            
+            .orders-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="dashboard-card">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="page-title">Seller Orders Dashboard</h1>
+                    <p class="page-subtitle">Manage and track your customer orders</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <button class="tab-button active" id="btn-pending" onclick="openTab('pending')">
+                    <i class="fas fa-clock"></i>
+                    Pending
+                </button>
+                <button class="tab-button" id="btn-approved" onclick="openTab('approved')">
+                    <i class="fas fa-check-circle"></i>
+                    Approved
+                </button>
+                <button class="tab-button" id="btn-ready" onclick="openTab('ready')">
+                    <i class="fas fa-motorcycle"></i>
+                    Ready for Rider
+                </button>
+                <button class="tab-button" id="btn-out" onclick="openTab('out')">
+                    <i class="fas fa-shipping-fast"></i>
+                    Out for Delivery
+                </button>
+                <button class="tab-button" id="btn-returned" onclick="openTab('returned')">
+                    <i class="fas fa-undo"></i>
+                    Returned
+                </button>
+                <button class="tab-button" id="btn-delivered" onclick="openTab('delivered')">
+                    <i class="fas fa-home"></i>
+                    Delivered
+                </button>
+            </div>
+
+            <!-- PENDING ORDERS -->
+            <div class="orders-section active" id="pending">
+                {% if orders|selectattr('status', 'equalto', 'pending')|list %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Buyer</th>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Variant</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders if order.status == 'pending' %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td class="buyer-name">{{ order.buyer_name }}</td>
+                            <td class="product-name">{{ order.product_name }}</td>
+                            <td>
+                                <img src="{{ order.image_url or 'https://via.placeholder.com/80/1a0a2e/a855f7?text=Product' }}" 
+                                     alt="{{ order.product_name }}" 
+                                     class="product-image">
+                            </td>
+                            <td class="variant-info">{{ order.color }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td class="price-info">${{ order.price }}</td>
+                            <td class="price-info">${{ (order.price * order.quantity)|round(2) }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('seller_acknowledge_order', order_id=order.order_id) }}" class="btn btn-acknowledge">
+                                        <i class="fas fa-check"></i>
+                                        Acknowledge
+                                    </a>
+                                    <a href="{{ url_for('seller_decline_order', order_id=order.order_id) }}" class="btn btn-decline">
+                                        <i class="fas fa-times"></i>
+                                        Decline
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No pending orders</p>
+                    <p>New customer orders will appear here</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- APPROVED ORDERS -->
+            <div class="orders-section" id="approved">
+                {% if orders|selectattr('status', 'equalto', 'approved')|selectattr('delivery_status', 'ne', 'returned_to_seller')|selectattr('delivery_status', 'ne', 'delivered')|list %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Buyer</th>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Variant</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders if order.status == 'approved' and order.delivery_status != 'returned_to_seller' and order.delivery_status != 'delivered' %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td class="buyer-name">{{ order.buyer_name }}</td>
+                            <td class="product-name">{{ order.product_name }}</td>
+                            <td>
+                                <img src="{{ order.image_url or 'https://via.placeholder.com/80/1a0a2e/a855f7?text=Product' }}" 
+                                     alt="{{ order.product_name }}" 
+                                     class="product-image">
+                            </td>
+                            <td class="variant-info">{{ order.color }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td class="price-info">${{ order.price }}</td>
+                            <td class="price-info">${{ (order.price * order.quantity)|round(2) }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('seller_deliver_to_rider', order_id=order.order_id) }}" class="btn btn-deliver">
+                                        <i class="fas fa-motorcycle"></i>
+                                        Deliver to Rider
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No approved orders</p>
+                    <p>Approved orders ready for delivery will appear here</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- READY FOR RIDER -->
+            <div class="orders-section" id="ready">
+                {% if orders|selectattr('delivery_status', 'equalto', 'ready_for_delivery')|list %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Buyer</th>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Variant</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders if order.delivery_status == 'ready_for_delivery' %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td class="buyer-name">{{ order.buyer_name }}</td>
+                            <td class="product-name">{{ order.product_name }}</td>
+                            <td>
+                                <img src="{{ order.image_url or 'https://via.placeholder.com/80/1a0a2e/a855f7?text=Product' }}" 
+                                     alt="{{ order.product_name }}" 
+                                     class="product-image">
+                            </td>
+                            <td class="variant-info">{{ order.color }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td class="price-info">${{ order.price }}</td>
+                            <td class="price-info">${{ (order.price * order.quantity)|round(2) }}</td>
+                            <td>
+                                <span class="status-indicator status-ready">
+                                    <i class="fas fa-motorcycle"></i>
+                                    Ready for Rider
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-motorcycle"></i>
+                    <p>No orders ready for rider</p>
+                    <p>Orders will appear here when they're ready for pickup</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- OUT FOR DELIVERY -->
+            <div class="orders-section" id="out">
+                {% if orders|selectattr('delivery_status', 'equalto', 'out_for_delivery')|list %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Buyer</th>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Variant</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders if order.delivery_status == 'out_for_delivery' %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td class="buyer-name">{{ order.buyer_name }}</td>
+                            <td class="product-name">{{ order.product_name }}</td>
+                            <td>
+                                <img src="{{ order.image_url or 'https://via.placeholder.com/80/1a0a2e/a855f7?text=Product' }}" 
+                                     alt="{{ order.product_name }}" 
+                                     class="product-image">
+                            </td>
+                            <td class="variant-info">{{ order.color }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td class="price-info">${{ order.price }}</td>
+                            <td class="price-info">${{ (order.price * order.quantity)|round(2) }}</td>
+                            <td>
+                                <span class="status-indicator status-out">
+                                    <i class="fas fa-shipping-fast"></i>
+                                    Out for Delivery
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-shipping-fast"></i>
+                    <p>No orders out for delivery</p>
+                    <p>Orders will appear here when they're on the way to customers</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- RETURNED ORDERS -->
+            <div class="orders-section" id="returned">
+                {% if orders|selectattr('delivery_status', 'equalto', 'returned_to_seller')|list %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Buyer</th>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Variant</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders if order.delivery_status == 'returned_to_seller' %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td class="buyer-name">{{ order.buyer_name }}</td>
+                            <td class="product-name">{{ order.product_name }}</td>
+                            <td>
+                                <img src="{{ order.image_url or 'https://via.placeholder.com/80/1a0a2e/a855f7?text=Product' }}" 
+                                     alt="{{ order.product_name }}" 
+                                     class="product-image">
+                            </td>
+                            <td class="variant-info">{{ order.color }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td class="price-info">${{ order.price }}</td>
+                            <td class="price-info">${{ (order.price * order.quantity)|round(2) }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('seller_redeliver_to_rider', order_id=order.order_id) }}" class="btn btn-redeliver">
+                                        <i class="fas fa-redo"></i>
+                                        Redeliver
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-undo"></i>
+                    <p>No returned orders</p>
+                    <p>Returned orders will appear here</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- DELIVERED ORDERS -->
+            <div class="orders-section" id="delivered">
+                {% if orders|selectattr('delivery_status', 'equalto', 'delivered')|list %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Buyer</th>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Variant</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Delivered At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders if order.delivery_status == 'delivered' %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td class="buyer-name">{{ order.buyer_name }}</td>
+                            <td class="product-name">{{ order.product_name }}</td>
+                            <td>
+                                <img src="{{ order.image_url or 'https://via.placeholder.com/80/1a0a2e/a855f7?text=Product' }}" 
+                                     alt="{{ order.product_name }}" 
+                                     class="product-image">
+                            </td>
+                            <td class="variant-info">{{ order.color }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td class="price-info">${{ order.price }}</td>
+                            <td class="price-info">${{ (order.price * order.quantity)|round(2) }}</td>
+                            <td>
+                                <span class="status-indicator status-delivered">
+                                    {% if order.delivered_at %}{{ order.delivered_at }}{% else %}--{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-home"></i>
+                    <p>No delivered orders yet</p>
+                    <p>Successfully delivered orders will appear here</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Back Button -->
+            <div class="actions-container">
+                <a href="{{ url_for('seller_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.orders-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected section and activate button
+            document.getElementById(tabName).classList.add('active');
+            document.getElementById(`btn-${tabName}`).classList.add('active');
+
+            // Update URL without page reload
+            history.pushState(null, null, `#${tabName}`);
+        }
+
+        // Check URL hash on page load
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                openTab(hash);
+            } else {
+                openTab('pending');
+            }
+        });
+
+        // Auto-refresh for pending orders
+        setInterval(() => {
+            const activeTab = document.querySelector('.orders-section.active').id;
+            if (activeTab === 'pending') {
+                window.location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Location | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+            --success: #4ade80;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .location-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .location-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-title {
+            color: var(--starlight);
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--moonlight);
+            font-size: 1rem;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        /* Order Info */
+        .order-info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--nebula);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--starlight);
+            font-size: 1.1rem;
+        }
+
+        .product-name {
+            color: var(--glow-purple);
+        }
+
+        .buyer-name {
+            color: var(--electric-purple);
+        }
+
+        .address-text {
+            color: var(--moonlight);
+            line-height: 1.4;
+        }
+
+        /* Map Container */
+        .map-container {
+            margin: 30px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 14px;
+        }
+
+        /* Light Map Styles */
+        .leaflet-popup-content-wrapper {
+            background: rgba(26, 10, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 12px;
+            color: var(--starlight);
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(26, 10, 46, 0.95);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .leaflet-control-zoom a {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: var(--cosmic-purple) !important;
+            border: 1px solid rgba(147, 51, 234, 0.3) !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: rgba(147, 51, 234, 0.2) !important;
+        }
+
+        .leaflet-bar a, .leaflet-bar a:hover {
+            border-bottom: 1px solid rgba(147, 51, 234, 0.3) !important;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        /* Delivery Status */
+        .delivery-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .location-card {
+                padding: 25px;
+            }
+            
+            .location-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+
+            #map {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .location-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 22px;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+
+            #map {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="location-card">
+            <!-- Header -->
+            <div class="location-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="page-title">Delivery Location</h1>
+                    <p class="page-subtitle">Navigate to the delivery destination</p>
+                </div>
+            </div>
+
+            <!-- Order Information -->
+            <div class="order-info">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-cube"></i>
+                            Product
+                        </div>
+                        <div class="info-value product-name">{{ order.product_name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i>
+                            Buyer
+                        </div>
+                        <div class="info-value buyer-name">{{ order.buyer_name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-phone"></i>
+                            Contact
+                        </div>
+                        <div class="info-value">{{ order.phone }}</div>
+                    </div>
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">
+                            <i class="fas fa-map-pin"></i>
+                            Delivery Address
+                        </div>
+                        <div class="info-value address-text">{{ order.address }}</div>
+                        <div class="delivery-status">
+                            <i class="fas fa-shipping-fast"></i>
+                            Active Delivery
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="actions-container">
+                <a href="{{ url_for('rider_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map with light theme
+        const lat = {{ order.latitude }};
+        const lon = {{ order.longitude }};
+        
+        // Create custom icon
+        const customIcon = L.divIcon({
+            html: '<i class="fas fa-map-marker-alt" style="color: #a855f7; font-size: 30px; text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);"></i>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            className: 'custom-marker'
+        });
+
+        // Initialize map
+        const map = L.map('map').setView([lat, lon], 15);
+        
+        // Add light-themed tile layer (OpenStreetMap standard tiles)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add marker with custom icon
+        const marker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
+        
+        // Create custom popup content
+        const popupContent = `
+            <div style="padding: 10px; color: white; min-width: 200px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <i class="fas fa-user" style="color: #c084fc;"></i>
+                    <strong>${order.buyer_name}</strong>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <i class="fas fa-cube" style="color: #c084fc;"></i>
+                    <span>${order.product_name}</span>
+                </div>
+                <div style="display: flex; align-items: start; gap: 8px;">
+                    <i class="fas fa-map-marker-alt" style="color: #c084fc; margin-top: 2px;"></i>
+                    <span>${order.address}</span>
+                </div>
+            </div>
+        `;
+
+        marker.bindPopup(popupContent).openPopup();
+
+        // Add some map controls and styling
+        map.attributionControl.setPrefix('');
+
+        // Add custom zoom control
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
+
+        // Add location accuracy circle
+        const accuracyCircle = L.circle([lat, lon], {
+            color: '#a855f7',
+            fillColor: '#9333ea',
+            fillOpacity: 0.1,
+            radius: 50
+        }).addTo(map);
+
+        // Add animation to marker on load
+        setTimeout(() => {
+            marker.getElement().style.transition = 'all 0.5s ease';
+            marker.getElement().style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                marker.getElement().style.transform = 'scale(1)';
+            }, 500);
+        }, 1000);
+    </script>
+</body>
+</html>

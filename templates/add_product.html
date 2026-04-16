@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-title {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--moonlight);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--moonlight);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            color: var(--starlight);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        .section-title {
+            color: var(--moonlight);
+            font-size: 20px;
+            font-weight: 600;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--electric-purple);
+        }
+
+        .section-description {
+            color: var(--nebula);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .variants-container {
+            margin: 20px 0;
+        }
+
+        .variant {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px dashed rgba(138, 43, 226, 0.3);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .variant:hover {
+            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .variant-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .variant-image {
+            grid-column: 1 / -1;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            color: var(--starlight);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(138, 43, 226, 0.5);
+        }
+
+        .variant-preview {
+            margin-top: 20px;
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 12px;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.2);
+            display: none;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            color: var(--starlight);
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(168, 85, 247, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            color: var(--starlight);
+            margin-bottom: 20px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 10px 16px;
+            font-size: 14px;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 20px;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .product-card {
+                padding: 25px;
+            }
+            
+            .product-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .variant-fields {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="product-card">
+            <!-- Header -->
+            <div class="product-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="page-title">Add New Product</h1>
+                    <p class="page-subtitle">Expand your store with amazing products</p>
+                </div>
+            </div>
+
+            <!-- Product Form -->
+            <form method="POST" enctype="multipart/form-data" id="productForm">
+                <!-- Basic Information -->
+                <div class="form-group">
+                    <label class="form-label required">Product Name</label>
+                    <input type="text" name="name" class="form-input" placeholder="Enter product name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-textarea" placeholder="Describe your product..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Price (₱)</label>
+                    <input type="number" step="0.01" name="price" class="form-input" placeholder="0.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Category</label>
+                    <select name="category" class="form-select" required>
+                        <option value="{{ allowed_category }}">{{ allowed_category }}</option>
+                    </select>
+                </div>
+
+                <!-- Variants Section -->
+                <h3 class="section-title">
+                    <i class="fas fa-palette"></i>
+                    Product Variants
+                </h3>
+                <p class="section-description">
+                    Add different colors, sizes, or styles of your product. Each variant can have its own stock and image.
+                </p>
+
+                <div class="variants-container" id="variants">
+                    <!-- Variants will be added here dynamically -->
+                </div>
+
+                <button type="button" class="btn btn-secondary" onclick="addVariant()">
+                    <i class="fas fa-plus"></i>
+                    Add New Variant
+                </button>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i>
+                    Add Product to Store
+                </button>
+            </form>
+
+            <!-- Back Button -->
+            <div class="actions-container">
+                <a href="{{ url_for('seller_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let variantCount = 0;
+
+        function addVariant() {
+            const container = document.getElementById("variants");
+            const variantId = ++variantCount;
+            
+            const div = document.createElement("div");
+            div.className = "variant";
+            div.innerHTML = `
+                <div class="variant-fields">
+                    <div>
+                        <label class="form-label required">Color/Type</label>
+                        <input type="text" name="variant_color[]" class="form-input" placeholder="e.g., Black, Red, Blue" required>
+                    </div>
+                    <div>
+                        <label class="form-label required">Stock</label>
+                        <input type="number" name="variant_stock[]" class="form-input" placeholder="Available quantity" required>
+                    </div>
+                    <div class="variant-image">
+                        <label class="form-label">Variant Image</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="variant_image[]" class="file-input" accept="image/*" onchange="previewImage(this)">
+                        </div>
+                        <img class="variant-preview" alt="Preview">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeVariant(this)">
+                    <i class="fas fa-trash"></i>
+                    Remove Variant
+                </button>
+            `;
+
+            container.appendChild(div);
+            
+            // Add animation
+            div.style.opacity = '0';
+            div.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                div.style.transition = 'all 0.3s ease';
+                div.style.opacity = '1';
+                div.style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        function removeVariant(button) {
+            const variant = button.parentElement;
+            variant.style.opacity = '0';
+            variant.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                variant.remove();
+            }, 300);
+        }
+
+        function previewImage(input) {
+            const file = input.files[0];
+            const preview = input.parentElement.parentElement.querySelector('.variant-preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        }
+
+        // Add first variant automatically
+        document.addEventListener('DOMContentLoaded', function() {
+            addVariant();
+            
+            // Form submission handler
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                // Add loading state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Product...';
+                submitBtn.disabled = true;
+                
+                // Re-enable after 3 seconds in case of error
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 3000);
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter to submit form
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('productForm').submit();
+            }
+            
+            // Ctrl+Shift+V to add variant
+            if (e.ctrlKey && e.shiftKey && e.key === 'V') {
+                e.preventDefault();
+                addVariant();
+            }
+        });
+    </script>
+</body>
+</html>

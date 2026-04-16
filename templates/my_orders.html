@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | Wavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --deep-space: #0a0a0a;
+            --cosmic-purple: #1a0a2e;
+            --neon-purple: #9333ea;
+            --electric-purple: #a855f7;
+            --glow-purple: #c084fc;
+            --starlight: #ffffff;
+            --moonlight: #e9d5ff;
+            --nebula: #d8b4fe;
+            --void: #000000;
+            --accent-glow: #e879f9;
+        }
+
+        body {
+            background: radial-gradient(circle at top, var(--cosmic-purple), var(--deep-space));
+            color: var(--starlight);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(192, 132, 252, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .orders-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .orders-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(15deg) scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+            50% { transform: rotate(15deg) scale(1.05); box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .page-title {
+            color: var(--starlight);
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--electric-purple), var(--glow-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--moonlight);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .tabs-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 180px;
+            padding: 16px 20px;
+            background: transparent;
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            color: var(--nebula);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .tab-button:hover {
+            background: rgba(138, 43, 226, 0.1);
+            border-color: rgba(138, 43, 226, 0.5);
+            color: var(--moonlight);
+        }
+
+        .tab-button.active {
+            background: rgba(138, 43, 226, 0.2);
+            border-color: var(--electric-purple);
+            color: var(--starlight);
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .orders-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .orders-section.active {
+            display: block;
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            border-color: rgba(138, 43, 226, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.2);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .order-product {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .product-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            border: 2px solid rgba(147, 51, 234, 0.3);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-name {
+            color: var(--moonlight);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .product-variant {
+            color: var(--nebula);
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .product-quantity {
+            color: var(--starlight);
+            font-weight: 500;
+        }
+
+        .order-status {
+            text-align: right;
+        }
+
+        .status-badge {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-ready {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-out {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--electric-purple);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .status-delivered {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .review-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .review-form {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 2rem;
+            color: var(--nebula);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #fbbf24;
+        }
+
+        .review-textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: var(--starlight);
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .review-textarea:focus {
+            border-color: var(--electric-purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .review-display {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .review-rating {
+            color: #fbbf24;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .review-comment {
+            color: var(--moonlight);
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-purple), var(--electric-purple));
+            color: var(--starlight);
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--starlight);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-top: 30px;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--nebula);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .orders-card {
+                padding: 25px;
+            }
+            
+            .orders-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .order-product {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .order-status {
+                text-align: center;
+            }
+            
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+            
+            .tabs-container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .orders-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <div class="container">
+        <div class="orders-card">
+            <!-- Header -->
+            <div class="orders-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <div class="logo-text">WAVIX</div>
+                </div>
+                <div>
+                    <h1 class="page-title">My Orders</h1>
+                    <p class="page-subtitle">Track and manage your purchases</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <button class="tab-button active" id="btn-pending" onclick="openTab('pending')">
+                    <i class="fas fa-clock"></i>
+                    Pending
+                </button>
+                <button class="tab-button" id="btn-approved" onclick="openTab('approved')">
+                    <i class="fas fa-check-circle"></i>
+                    Approved
+                </button>
+                <button class="tab-button" id="btn-ready" onclick="openTab('ready')">
+                    <i class="fas fa-box"></i>
+                    Ready for Delivery
+                </button>
+                <button class="tab-button" id="btn-out" onclick="openTab('out')">
+                    <i class="fas fa-shipping-fast"></i>
+                    Out for Delivery
+                </button>
+                <button class="tab-button" id="btn-delivered" onclick="openTab('delivered')">
+                    <i class="fas fa-home"></i>
+                    Delivered
+                </button>
+            </div>
+
+            <!-- PENDING ORDERS -->
+            <div class="orders-section active" id="pending">
+                {% for order in orders if order.status == 'pending' %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-product">
+                            <img src="{{ order.image_url or 'https://via.placeholder.com/100/1a0a2e/a855f7?text=Product' }}" 
+                                 alt="{{ order.product_name }}" 
+                                 class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">{{ order.product_name }}</div>
+                                <div class="product-variant">Color: {{ order.color }}</div>
+                                <div class="product-quantity">Quantity: {{ order.quantity }}</div>
+                            </div>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge status-pending">
+                                <i class="fas fa-clock"></i>
+                                Pending Approval
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No pending orders</p>
+                    <p>Your approved orders will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- APPROVED ORDERS -->
+            <div class="orders-section" id="approved">
+                {% for order in orders if order.status == 'approved' and order.delivery_status not in ['ready_for_delivery','out_for_delivery','delivered'] %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-product">
+                            <img src="{{ order.image_url or 'https://via.placeholder.com/100/1a0a2e/a855f7?text=Product' }}" 
+                                 alt="{{ order.product_name }}" 
+                                 class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">{{ order.product_name }}</div>
+                                <div class="product-variant">Color: {{ order.color }}</div>
+                                <div class="product-quantity">Quantity: {{ order.quantity }}</div>
+                            </div>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge status-approved">
+                                <i class="fas fa-check-circle"></i>
+                                Approved
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No approved orders</p>
+                    <p>Your approved orders will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- READY FOR DELIVERY -->
+            <div class="orders-section" id="ready">
+                {% for order in orders if order.delivery_status == 'ready_for_delivery' or order.status == 'ready_to_delivery' %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-product">
+                            <img src="{{ order.image_url or 'https://via.placeholder.com/100/1a0a2e/a855f7?text=Product' }}" 
+                                 alt="{{ order.product_name }}" 
+                                 class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">{{ order.product_name }}</div>
+                                <div class="product-variant">Color: {{ order.color }}</div>
+                                <div class="product-quantity">Quantity: {{ order.quantity }}</div>
+                            </div>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge status-ready">
+                                <i class="fas fa-box"></i>
+                                Ready for Delivery
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-box"></i>
+                    <p>No orders ready for delivery</p>
+                    <p>Orders will appear here when they're ready to be shipped</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- OUT FOR DELIVERY -->
+            <div class="orders-section" id="out">
+                {% for order in orders if order.delivery_status == 'out_for_delivery' or order.status == 'shipped' %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-product">
+                            <img src="{{ order.image_url or 'https://via.placeholder.com/100/1a0a2e/a855f7?text=Product' }}" 
+                                 alt="{{ order.product_name }}" 
+                                 class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">{{ order.product_name }}</div>
+                                <div class="product-variant">Color: {{ order.color }}</div>
+                                <div class="product-quantity">Quantity: {{ order.quantity }}</div>
+                            </div>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge status-out">
+                                <i class="fas fa-shipping-fast"></i>
+                                Out for Delivery
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-shipping-fast"></i>
+                    <p>No orders out for delivery</p>
+                    <p>Orders will appear here when they're on their way to you</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- DELIVERED ORDERS -->
+            <div class="orders-section" id="delivered">
+                {% for order in orders if order.delivery_status == 'delivered' %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-product">
+                            <img src="{{ order.image_url or 'https://via.placeholder.com/100/1a0a2e/a855f7?text=Product' }}" 
+                                 alt="{{ order.product_name }}" 
+                                 class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">{{ order.product_name }}</div>
+                                <div class="product-variant">Color: {{ order.color }}</div>
+                                <div class="product-quantity">Quantity: {{ order.quantity }}</div>
+                            </div>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge status-delivered">
+                                <i class="fas fa-home"></i>
+                                Delivered
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="review-section">
+                        {% if order.reviewed %}
+                        <div class="review-display">
+                            <div class="review-rating">
+                                {% for i in range(order.rating) %}⭐{% endfor %}
+                                <span style="color: var(--moonlight); margin-left: 10px;">{{ order.rating }}/5</span>
+                            </div>
+                            <div class="review-comment">{{ order.comment }}</div>
+                        </div>
+                        {% else %}
+                        <div class="review-form">
+                            <form action="{{ url_for('submit_review', order_id=order.id) }}" method="post">
+                                <div class="star-rating">
+                                    {% for i in range(5,0,-1) %}
+                                        <input type="radio" name="rating" id="star{{ i }}-{{ order.id }}" value="{{ i }}" required>
+                                        <label for="star{{ i }}-{{ order.id }}">★</label>
+                                    {% endfor %}
+                                </div>
+                                <textarea name="comment" class="review-textarea" placeholder="Share your experience with this product..." required></textarea>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Submit Review
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-home"></i>
+                    <p>No delivered orders yet</p>
+                    <p>Your delivered orders will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Back Button -->
+            <div class="actions-container">
+                <a href="{{ url_for('index') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.orders-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected section and activate button
+            document.getElementById(tabName).classList.add('active');
+            document.getElementById(`btn-${tabName}`).classList.add('active');
+
+            // Update URL without page reload
+            history.pushState(null, null, `#${tabName}`);
+        }
+
+        // Check URL hash on page load
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                openTab(hash);
+            } else {
+                openTab('pending');
+            }
+        });
+
+        // Add animation to order cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderCards = document.querySelectorAll('.order-card');
+            orderCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // Auto-refresh for pending orders
+        setInterval(() => {
+            const activeTab = document.querySelector('.orders-section.active').id;
+            if (activeTab === 'pending') {
+                window.location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
