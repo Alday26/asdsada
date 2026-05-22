@@ -36,12 +36,18 @@ google = oauth.register(
     client_kwargs={'scope': 'openid email profile'}
 )
 def get_db_connection():
+    host = os.environ.get("MYSQLHOST") or os.environ.get("DB_HOST", "localhost")
+    port = int(os.environ.get("MYSQLPORT") or os.environ.get("DB_PORT", 3306))
+    user = os.environ.get("MYSQLUSER") or os.environ.get("DB_USER", "root")
+    password = os.environ.get("MYSQLPASSWORD") or os.environ.get("DB_PASSWORD", "")
+    database = os.environ.get("MYSQLDATABASE") or os.environ.get("DB_NAME", "railway")
+    print(f"Connecting to {host}:{port} db={database} user={user}")
     return mysql.connector.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        port=int(os.environ.get("DB_PORT", 3306)),
-        user=os.environ.get("DB_USER", "root"),
-        password=os.environ.get("DB_PASSWORD", ""),
-        database=os.environ.get("DB_NAME", "ecoms3rddb")
+        host=host,
+        port=port,
+        user=user,
+        password=password,
+        database=database
     )
 
 
