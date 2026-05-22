@@ -1537,13 +1537,15 @@ def api_my_orders():
         if not order["total_price"] or float(order["total_price"]) == 0:
             order["total_price"] = (price * qty) + shipping
 
+        BASE = "https://web-production-1592e.up.railway.app"
+
         # fix image_url
         if order["image_url"] and not str(order["image_url"]).startswith("http"):
-            order["image_url"] = "http://192.168.1.249:5000" + str(order["image_url"])
+            order["image_url"] = BASE + str(order["image_url"])
 
-        # ✅ FIX proof image URL
+        # fix proof image URL
         if order.get("proof_image") and not str(order["proof_image"]).startswith("http"):
-            order["proof_image"] = "http://192.168.1.249:5000" + str(order["proof_image"])
+            order["proof_image"] = BASE + str(order["proof_image"])
 
     return jsonify({
         "success": True,
@@ -1786,8 +1788,11 @@ def api_complete_payment():
     # ================= ADDRESS =================
     try:
         address = get_address_from_coords(latitude, longitude)
-    except:
-        address = "Unknown Address"
+        if not address:
+            address = f"{latitude}, {longitude}"
+    except Exception as e:
+        print("Address lookup failed:", e)
+        address = f"{latitude}, {longitude}"
 
     # ================= SHIPPING FEE =================
     shipping_fee = 50
@@ -2269,7 +2274,7 @@ def api_product_detail(product_id):
         avg_rating = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
 
     # BASE URL
-    BASE_URL = "http://192.168.1.249:5000"
+    BASE_URL = "https://web-production-1592e.up.railway.app"
 
     # FIX PRODUCT IMAGE
     cursor.execute("""
@@ -2318,7 +2323,7 @@ def api_products():
 
     products = cursor.fetchall()
 
-    BASE_URL = "http://192.168.1.249:5000"
+    BASE_URL = "https://web-production-1592e.up.railway.app"
 
     for p in products:
         # get FIRST variant image (your real image source)
@@ -3953,21 +3958,15 @@ def api_rider_dashboard():
     my_deliveries = cursor.fetchall()
 
     # ================= IMAGE FIX =================
+    BASE = "https://web-production-1592e.up.railway.app"
+
     for order in available_orders:
-        if order["image_url"]:
-            if not str(order["image_url"]).startswith("http"):
-                order["image_url"] = (
-                    "http://192.168.1.249:5000"
-                    + str(order["image_url"])
-                )
+        if order["image_url"] and not str(order["image_url"]).startswith("http"):
+            order["image_url"] = BASE + str(order["image_url"])
 
     for order in my_deliveries:
-        if order["image_url"]:
-            if not str(order["image_url"]).startswith("http"):
-                order["image_url"] = (
-                    "http://192.168.1.249:5000"
-                    + str(order["image_url"])
-                )
+        if order["image_url"] and not str(order["image_url"]).startswith("http"):
+            order["image_url"] = BASE + str(order["image_url"])
 
     conn.close()
 
