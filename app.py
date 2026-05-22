@@ -1660,13 +1660,13 @@ def get_address_from_coords(lat, lon):
     try:
         url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
         headers = {"User-Agent": "EcomsApp/1.0 (contact@example.com)"}
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.get(url, headers=headers, timeout=3)
         if res.status_code == 200:
             data = res.json()
-            return data.get("display_name", "Unknown address")
+            return data.get("display_name", f"{lat}, {lon}")
     except Exception as e:
         print("Error fetching address:", e)
-    return "Unknown address"
+    return f"{lat}, {lon}"
 
 
 @app.route("/complete_payment", methods=["POST"])
