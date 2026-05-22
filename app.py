@@ -20,14 +20,14 @@ active_tokens = {}
 
 app = Flask(__name__,static_url_path='/static')
 CORS(app)
-app.secret_key = "supersecretkey"
+app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 oauth = OAuth(app)
 
 
 google = oauth.register(
     name='google',
-    client_id='YOUR_GOOGLE_CLIENT_ID',
-    client_secret='',
+    client_id=os.environ.get("GOOGLE_CLIENT_ID", ""),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET", ""),
     access_token_url='https://oauth2.googleapis.com/token',
     access_token_params=None,
     authorize_url='https://accounts.google.com/o/oauth2/auth',
@@ -37,10 +37,10 @@ google = oauth.register(
 )
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",      # change if your MySQL is hosted elsewhere
-        user="root",           # your MySQL username
-        password="",           # your MySQL password
-        database="ecoms3rddb"      # your database name
+        host=os.environ.get("DB_HOST", "localhost"),
+        user=os.environ.get("DB_USER", "root"),
+        password=os.environ.get("DB_PASSWORD", ""),
+        database=os.environ.get("DB_NAME", "ecoms3rddb")
     )
 
 
@@ -288,8 +288,8 @@ def send_otp():
     session["otp_email"] = email
 
     # Gmail SMTP (requires App Password)
-    sender_email = "YOUR_EMAIL@gmail.com"  # replace with your sender email
-    sender_password = "YOUR_APP_PASSWORD"  # replace with your Gmail app password
+    sender_email = os.environ.get("MAIL_SENDER", "YOUR_EMAIL@gmail.com")
+    sender_password = os.environ.get("MAIL_PASSWORD", "YOUR_APP_PASSWORD")
 
     msg = MIMEText(f"Your OTP code is: {otp}")
     msg["Subject"] = "Verify your email"
