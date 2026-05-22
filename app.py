@@ -4468,7 +4468,13 @@ def logout():
 
 @app.route('/api/test')
 def api_test():
-    return jsonify({"message": "API is working"})
+    return jsonify({
+        "message": "API is working",
+        "DB_HOST": os.environ.get("DB_HOST", "NOT SET"),
+        "DB_PORT": os.environ.get("DB_PORT", "NOT SET"),
+        "DB_USER": os.environ.get("DB_USER", "NOT SET"),
+        "DB_NAME": os.environ.get("DB_NAME", "NOT SET"),
+    })
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
