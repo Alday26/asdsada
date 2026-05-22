@@ -691,64 +691,93 @@
             </div>
 
             <!-- DELIVERED ORDERS -->
-            <div class="orders-section" id="delivered">
-                {% for order in orders if order.delivery_status == 'delivered' %}
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-product">
-                            <img src="{{ order.image_url or 'https://via.placeholder.com/100/1a0a2e/a855f7?text=Product' }}" 
-                                 alt="{{ order.product_name }}" 
-                                 class="product-image">
-                            <div class="product-details">
-                                <div class="product-name">{{ order.product_name }}</div>
-                                <div class="product-variant">Color: {{ order.color }}</div>
-                                <div class="product-quantity">Quantity: {{ order.quantity }}</div>
-                            </div>
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge status-delivered">
-                                <i class="fas fa-home"></i>
-                                Delivered
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="review-section">
-                        {% if order.reviewed %}
-                        <div class="review-display">
-                            <div class="review-rating">
-                                {% for i in range(order.rating) %}⭐{% endfor %}
-                                <span style="color: var(--moonlight); margin-left: 10px;">{{ order.rating }}/5</span>
-                            </div>
-                            <div class="review-comment">{{ order.comment }}</div>
-                        </div>
-                        {% else %}
-                        <div class="review-form">
-                            <form action="{{ url_for('submit_review', order_id=order.id) }}" method="post">
-                                <div class="star-rating">
-                                    {% for i in range(5,0,-1) %}
-                                        <input type="radio" name="rating" id="star{{ i }}-{{ order.id }}" value="{{ i }}" required>
-                                        <label for="star{{ i }}-{{ order.id }}">★</label>
-                                    {% endfor %}
-                                </div>
-                                <textarea name="comment" class="review-textarea" placeholder="Share your experience with this product..." required></textarea>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane"></i>
-                                    Submit Review
-                                </button>
-                            </form>
-                        </div>
-                        {% endif %}
-                    </div>
+<div class="orders-section" id="delivered">
+    {% for order in orders if order.delivery_status == 'delivered' %}
+    <div class="order-card">
+
+        <div class="order-header">
+            <div class="order-product">
+                <img src="{{ order.image_url or 'https://via.placeholder.com/100' }}" 
+                     alt="{{ order.product_name }}" 
+                     class="product-image">
+
+                <div class="product-details">
+                    <div class="product-name">{{ order.product_name }}</div>
+                    <div class="product-variant">Color: {{ order.color }}</div>
+                    <div class="product-quantity">Quantity: {{ order.quantity }}</div>
                 </div>
-                {% else %}
-                <div class="empty-state">
-                    <i class="fas fa-home"></i>
-                    <p>No delivered orders yet</p>
-                    <p>Your delivered orders will appear here</p>
-                </div>
-                {% endfor %}
             </div>
+
+            <div class="order-status">
+                <span class="status-badge status-delivered">
+                    <i class="fas fa-home"></i>
+                    Delivered
+                </span>
+            </div>
+        </div>
+
+        <!-- ✅ DELIVERY PROOF IMAGE -->
+        {% if order.proof_image %}
+        <div style="margin-top:15px;">
+            <div style="color:#e9d5ff; font-weight:600; margin-bottom:8px;">
+                Delivery Proof:
+            </div>
+
+            <img src="{{ order.proof_image }}"
+                 alt="Delivery Proof"
+                 style="
+                    width:100%;
+                    max-width:400px;
+                    border-radius:12px;
+                    border:2px solid rgba(168,85,247,0.4);
+                    object-fit:cover;
+                 ">
+        </div>
+        {% endif %}
+
+        <!-- REVIEW SECTION -->
+        <div class="review-section">
+            {% if order.reviewed %}
+            <div class="review-display">
+                <div class="review-rating">
+                    {% for i in range(order.rating) %}⭐{% endfor %}
+                    <span style="color: #e9d5ff; margin-left:10px;">
+                        {{ order.rating }}/5
+                    </span>
+                </div>
+                <div class="review-comment">{{ order.comment }}</div>
+            </div>
+            {% else %}
+            <div class="review-form">
+                <form action="{{ url_for('submit_review', order_id=order.id) }}" method="post">
+                    <div class="star-rating">
+                        {% for i in range(5,0,-1) %}
+                            <input type="radio" name="rating" id="star{{ i }}-{{ order.id }}" value="{{ i }}" required>
+                            <label for="star{{ i }}-{{ order.id }}">★</label>
+                        {% endfor %}
+                    </div>
+
+                    <textarea name="comment" class="review-textarea"
+                        placeholder="Share your experience..." required></textarea>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Review
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-home"></i>
+        <p>No delivered orders yet</p>
+        <p>Your delivered orders will appear here</p>
+    </div>
+    {% endfor %}
+</div>
 
             <!-- Back Button -->
             <div class="actions-container">

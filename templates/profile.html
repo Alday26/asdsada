@@ -455,8 +455,8 @@
             <div class="profile-picture-section">
                 <h3>Profile Picture</h3>
                 <div class="profile-picture">
-                    {% if user['profile_image'] %}
-                        <img src="{{ user['profile_image'] }}" alt="Profile Picture">
+                    {% if user['profile_picture'] %}
+                        <img src="{{ user['profile_picture'] }}" alt="Profile Picture">
                         <!-- Remove Profile Image Button -->
                         <form method="POST" action="{{ url_for('profile') }}" style="display:block;" onsubmit="return confirm('Are you sure you want to remove your profile picture?');">
                             <button type="submit" name="remove_image" value="1" class="nav-btn secondary-button remove-button">
@@ -473,7 +473,7 @@
 
                 <!-- Upload New Image -->
                 <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data" class="upload-form">
-                    <input type="file" name="profile_image" accept="image/*" required class="file-input">
+                    <input type="file" name="profile_picture" accept="image/*" required class="file-input">
                     <button type="submit" name="upload_image" value="1" class="nav-btn">
                         <i class="fas fa-upload"></i>
                         Upload Image

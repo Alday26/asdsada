@@ -1129,6 +1129,9 @@
                 <label for="category">Filter by Category:</label>
                 <select name="category" id="category" onchange="this.form.submit()">
                     <option value="">All Categories</option>
+                    <option value="Electronics and Gadgets" {% if request.args.get('category') == "Electronics and Gadgets" %}selected{% endif %}>
+                        Electronics and Gadgets
+                    </option>
                     <option value="Mobile Phones & Accessories" {% if request.args.get('category') == "Mobile Phones & Accessories" %}selected{% endif %}>
                         Mobile Phones & Accessories
                     </option>
