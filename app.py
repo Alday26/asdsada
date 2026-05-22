@@ -288,8 +288,8 @@ def send_otp():
     session["otp_email"] = email
 
     # Gmail SMTP (requires App Password)
-    sender_email = "jiclao24@gmail.com"  # replace with your sender email if needed
-    sender_password = "qzhx wema vtuf uvzu"  # make sure this is a valid Gmail app password
+    sender_email = "YOUR_EMAIL@gmail.com"  # replace with your sender email
+    sender_password = "YOUR_APP_PASSWORD"  # replace with your Gmail app password
 
     msg = MIMEText(f"Your OTP code is: {otp}")
     msg["Subject"] = "Verify your email"
